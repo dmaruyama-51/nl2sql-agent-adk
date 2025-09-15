@@ -3,7 +3,7 @@ from utils.bigquery_config import bigquery_toolset
 
 # 一般的な質問に回答するエージェント
 general_response_agent = LlmAgent(
-    model='gemini-2.0-flash',
+    model='gemini-2.5-flash-lite',
     name='一般回答エージェント',
     description='一般的な質問に回答するエージェント',
     instruction="""
@@ -14,6 +14,7 @@ general_response_agent = LlmAgent(
     2. BigQueryからのデータ取得
     3. データ分析とレポート作成
     
+    # 指示
     ユーザーの質問に応じて適切に対応してください：
     
     1. 利用可能なデータについて聞かれた場合（「どんなデータが見られる？」「利用可能なデータセットは？」など）：
@@ -27,7 +28,8 @@ general_response_agent = LlmAgent(
     
     3. 一般的な質問には簡潔に回答してください。
     
-    回答は日本語で、親しみやすく具体的にしてください。
+    # 制約条件
+    - 回答は日本語で、親しみやすく具体的にしてください。
     """,
     tools=[bigquery_toolset],
     output_key="general_response_output"

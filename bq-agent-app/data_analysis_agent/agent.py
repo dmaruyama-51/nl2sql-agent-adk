@@ -5,17 +5,19 @@ from google.adk.agents import LlmAgent, SequentialAgent
 
 # 要件分析エージェント（LLMのみ）
 requirement_analysis_llm = LlmAgent(
-    model='gemini-2.0-flash',
+    model='gemini-2.5-flash',
     name='要件分析エージェント',
     description='要件分析を行うエージェント',
     instruction="""
     あなたは要件分析を行うエージェントです。
     
+    # 指示
     ユーザーの質問を詳細に分析してください：
     
     1. データセットやテーブルの調査を求められている場合：
        - BigQueryツールを使って利用可能なデータセットとテーブルを調査してください
        - 見つかったデータセット名、テーブル名、スキーマ情報を具体的に回答してください
+       - 実行したSQL文があれば必ず表示してください
        - 回答の最後に「REQUIREMENTS_COMPLETE」を出力してください
     
     2. 具体的なデータ分析が求められているが、必要な情報が不足している場合：
@@ -27,7 +29,7 @@ requirement_analysis_llm = LlmAgent(
        - 指標の定義を明確にしてください
        - 回答の最後に「REQUIREMENTS_COMPLETE」を出力してください
     
-    例：
+    # 例
     - データセット調査：「利用可能なデータセットを調査します。REQUIREMENTS_COMPLETE」
     - 情報不足：「分析期間はいつからいつまでをご希望でしょうか？ NEED_USER_CONFIRMATION」
     - 完了：「売上データを月別に集計します。 REQUIREMENTS_COMPLETE」
@@ -38,14 +40,27 @@ requirement_analysis_llm = LlmAgent(
 
 # データ取得エージェント（LLMのみ）
 data_fetch_llm = LlmAgent(
-    model='gemini-2.0-flash',
+    model='gemini-2.5-flash',
     name='データ取得エージェント',
     description='データ取得を行うエージェント',
     instruction="""
     あなたはデータ取得を行うエージェントです。
     
+    # 指示
     要件分析の結果に基づいて、BigQueryから適切なデータを取得してください。
-    取得完了後、回答の最後に「DATA_FETCH_COMPLETE」を出力してください。
+    
+    # 制約条件
+    - BigQueryでSQL文を実行する際は、必ず実行したSQL文を明示的に表示してください
+    - SQL文は「実行したSQL:」という形式で明確に示してください
+    - データ取得完了後、回答の最後に「DATA_FETCH_COMPLETE」を出力してください
+    
+    # 例
+    実行したSQL:
+    ```sql
+    SELECT column1, column2 
+    FROM `project.dataset.table` 
+    WHERE condition = 'value'
+    ```
     """,
     tools=[bigquery_toolset],
     output_key = "data_fetch_output"
@@ -53,14 +68,27 @@ data_fetch_llm = LlmAgent(
 
 # データ分析エージェント（LLMのみ）
 data_analysis_llm = LlmAgent(
-    model='gemini-2.0-flash',
+    model='gemini-2.5-flash',
     name='データ分析エージェント',
     description='データ分析を行うエージェント',
     instruction="""
     あなたはデータ分析を行うエージェントです。
     
+    # 指示
     取得したデータを分析し、ユーザーの質問に対する回答をレポート形式で提供してください。
-    分析結果は日本語で分かりやすくまとめ、グラフや表があれば説明を含めてください。
+    
+    # 制約条件
+    - 分析のためにBigQueryでSQL文を実行する場合は、必ず実行したSQL文を明示的に表示してください
+    - SQL文は「実行したSQL:」という形式で明確に示してください
+    - 分析結果は日本語で分かりやすくまとめ、グラフや表があれば説明を含めてください
+    
+    # 例
+    実行したSQL:
+    ```sql
+    SELECT COUNT(*), AVG(column) 
+    FROM `project.dataset.table` 
+    GROUP BY category
+    ```
     """,
     tools=[bigquery_toolset],
     output_key = "data_analysis_output"

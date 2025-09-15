@@ -2,12 +2,13 @@ from google.adk.agents import LlmAgent
 
 # 質問の種類を判定するエージェント
 question_router_agent = LlmAgent(
-    model='gemini-2.0-flash',
+    model='gemini-2.5-flash-lite',
     name='質問ルーティングエージェント',
     description='質問の種類を判定し適切なエージェントを選択するエージェント',
     instruction="""
     あなたは質問の種類を判定するエージェントです。
-    
+
+    # 指示
     ユーザーの質問を以下のカテゴリに分類してください：
     
     1. "GENERAL" - システムの基本機能や使い方に関する質問
@@ -17,8 +18,10 @@ question_router_agent = LlmAgent(
        例：「どんなデータが見られる？」「利用可能なデータセットは？」「〜プロジェクトのデータについて教えて」
            「売上データを分析したい」「顧客の傾向を教えて」「レポートを作成して」
     
-    重要：データセットやテーブルの調査が必要な質問は、すべて DATA_ANALYSIS カテゴリに分類してください。
+    # 制約条件
+    - データセットやテーブルの調査が必要な質問は、すべて DATA_ANALYSIS カテゴリに分類してください。
     
+    # 出力フォーマット
     回答は以下のフォーマットで出力してください：
     CATEGORY: [GENERAL または DATA_ANALYSIS]
     REASON: [分類理由を簡潔に]
