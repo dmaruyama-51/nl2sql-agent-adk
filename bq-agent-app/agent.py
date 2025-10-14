@@ -8,6 +8,7 @@ from pydantic import Field
 from .question_router_agent.agent import question_router_agent
 from .general_response_agent.agent import general_response_agent
 from .data_analysis_agent.agent import data_analysis_flow
+from .knowledge_search_agent.agent import knowledge_search_agent
 
 # 質問タイプに基づいて適切なエージェントを実行するルーターエージェント
 class QuestionTypeRouter(BaseAgent):
@@ -16,14 +17,16 @@ class QuestionTypeRouter(BaseAgent):
     # Pydanticフィールドとして定義
     question_router_agent: LlmAgent = Field(...)
     general_response_agent: LlmAgent = Field(...)
+    knowledge_search_agent: LlmAgent = Field(...)
     data_analysis_agent: SequentialAgent = Field(...)
     
-    def __init__(self, question_router_agent, general_response_agent, data_analysis_agent, **kwargs):
+    def __init__(self, question_router_agent, general_response_agent, knowledge_search_agent, data_analysis_agent, **kwargs):
         super().__init__(
             name="質問タイプルーター",
             description="質問の種類を判定し、適切なエージェントのみを実行する",
             question_router_agent=question_router_agent,
             general_response_agent=general_response_agent,
+            knowledge_search_agent=knowledge_search_agent,
             data_analysis_agent=data_analysis_agent,
             **kwargs
         )
@@ -42,7 +45,9 @@ class QuestionTypeRouter(BaseAgent):
             async for event in self.general_response_agent.run_async(ctx):
                 yield event
         elif "CATEGORY: DATA_ANALYSIS" in routing_decision:
-            # データ分析質問の場合はデータ分析フローのみ実行
+            # データ分析質問の場合は、まず知識検索を実行してからデータ分析フローを実行
+            async for event in self.knowledge_search_agent.run_async(ctx):
+                yield event
             async for event in self.data_analysis_agent.run_async(ctx):
                 yield event
         else:
@@ -58,5 +63,6 @@ class QuestionTypeRouter(BaseAgent):
 root_agent = QuestionTypeRouter(
     question_router_agent=question_router_agent,
     general_response_agent=general_response_agent,
+    knowledge_search_agent=knowledge_search_agent,
     data_analysis_agent=data_analysis_flow
 )

@@ -2,7 +2,6 @@ from utils.adk_utils import ConditionalLlmAgent
 from utils.bigquery_config import bigquery_toolset
 from google.adk.agents import LlmAgent, SequentialAgent
 
-
 # 要件分析エージェント（LLMのみ）
 requirement_analysis_llm = LlmAgent(
     model='gemini-2.5-flash',
@@ -35,7 +34,8 @@ requirement_analysis_llm = LlmAgent(
     - 完了：「売上データを月別に集計します。 REQUIREMENTS_COMPLETE」
 
     # 制約条件
-    - 事実を答える際、必ず根拠情報（検索結果や提供データ）を参照してください。根拠がない場合は「わかりません」と答えてください。決して推測や想像で答えてはいけません。 
+    - 事実を答える際、必ず根拠情報（検索結果や提供データ）を参照してください。根拠がない場合は「わかりません」と答えてください。決して推測や想像で答えてはいけません。
+    - 前段の知識検索エージェント（knowledge_search_output）が取得したドメイン知識も活用してください。
     """,
     tools=[bigquery_toolset],
     output_key = "requirement_output"
@@ -57,6 +57,7 @@ data_fetch_llm = LlmAgent(
     - SQL文は「実行したSQL:」という形式で示してください
     - データ取得完了後、回答の最後に「DATA_FETCH_COMPLETE」を出力してください
     - 事実を答える際、必ず根拠情報（前のエージェントの検索結果等）を参照してください。根拠がない場合は「わかりません」と答えてください。決して推測や想像で答えてはいけません。
+    - 知識検索エージェント（knowledge_search_output）が取得したドメイン知識も考慮してください。
 
     # 例
     実行したSQL:
