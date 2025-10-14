@@ -51,7 +51,7 @@ else
 fi
 echo ""
 
-# knowledges ディレクトリの存在確認
+# rag_knowledges ディレクトリの存在確認
 KNOWLEDGE_DIR="$SCRIPT_DIR"
 if [ ! -d "$KNOWLEDGE_DIR" ]; then
     echo -e "${RED}エラー: $KNOWLEDGE_DIR ディレクトリが見つかりません${NC}"
