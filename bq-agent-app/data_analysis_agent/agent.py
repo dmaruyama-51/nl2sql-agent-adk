@@ -10,6 +10,10 @@ requirement_analysis_llm = LlmAgent(
     instruction="""
     あなたは要件分析を行うエージェントです。
 
+    # 重要な前提
+    - knowledge_search_outputには、前段の知識検索エージェントが取得したドメイン知識が含まれています
+    - BigQueryツールを使う前に、knowledge_search_outputの内容を確認し、そこに答えがある場合はツールを使わずに回答してください
+
     # 指示
     ユーザーの質問を詳細に分析してください：
 
